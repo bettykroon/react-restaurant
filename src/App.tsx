@@ -1,25 +1,29 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import './App.scss';
+import { Route, Routes } from 'react-router-dom';
+import Layout from './components/Layout/Layout';
+import { Home } from './components/Home/Home';
+import { Booking } from './components/Booking/Booking';
+import { Contact } from './components/Contact/Contact';
+import Admin from './components/Admin/Admin';
+import CreateRestaurantService from './Services/CreateRestaurantService/CreateRestaurantService';
+import GetRestaurantService from './Services/GetRestaurantService/GetRestaurantService';
 
 function App() {
+  const id = localStorage.getItem('id');
+  
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      {id === null && <CreateRestaurantService></CreateRestaurantService>}
+      <GetRestaurantService></GetRestaurantService>
+      <Routes>
+        <Route path='/' element={<Layout/>}>
+          <Route index element={<Home/>}/>
+          <Route path='/bokning' element={<Booking/>}/>
+          <Route path='/kontakt' element={<Contact/>}/>
+          <Route path='/admin' element={<Admin/>}/>
+        </Route>
+      </Routes>
+    </>
   );
 }
 
