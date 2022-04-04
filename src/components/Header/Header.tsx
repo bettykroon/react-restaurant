@@ -13,6 +13,7 @@ export function Header(){
             <NavLink to="/bokning" className={({isActive}) => (isActive ? "link-active" : "link")}>Boka</NavLink>
             <NavLink to="/kontakt" className={({isActive}) => (isActive ? "link-active" : "link")}>Kontakt</NavLink>
         </nav>
+        <Link to="/admin">Admin</Link>
     </div>)
 }
 

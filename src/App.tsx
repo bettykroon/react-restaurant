@@ -6,7 +6,6 @@ import { Booking } from './components/Booking/Booking';
 import { Contact } from './components/Contact/Contact';
 import Admin from './components/Admin/Admin';
 import CreateRestaurantService from './Services/CreateRestaurantService/CreateRestaurantService';
-import GetRestaurantService from './Services/GetRestaurantService/GetRestaurantService';
 
 function App() {
   const id = localStorage.getItem('id');
@@ -14,7 +13,6 @@ function App() {
   return (
     <>
       {id === null && <CreateRestaurantService></CreateRestaurantService>}
-      <GetRestaurantService></GetRestaurantService>
       <Routes>
         <Route path='/' element={<Layout/>}>
           <Route index element={<Home/>}/>
