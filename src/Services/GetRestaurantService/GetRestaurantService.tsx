@@ -9,7 +9,7 @@ export function GetRestaurantService(){
             .then(response => {console.log(response.data)})
     }, []);
 
-    return <></>
+    return (<></>)
 }
 
 export default GetRestaurantService
