@@ -17,8 +17,9 @@ export function Admin(){
             console.log(bookings);
         })
 
+        /*if( bookings.length > 0) return;
         //Hämtar bokningar med restaurangId från skapad restaurang
-        /*axios.get<Bookings[]>('https://school-restaurant-api.azurewebsites.net/booking/restaurant/624aaeffdf8a9fb11c3ea8b5')
+        axios.get<Bookings[]>('https://school-restaurant-api.azurewebsites.net/booking/restaurant/624aaeffdf8a9fb11c3ea8b5')
             .then(response => {
                 console.log(response.data);
                 let dataFromApi = response.data.map((booking: Bookings) => {

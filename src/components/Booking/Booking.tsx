@@ -1,22 +1,9 @@
 import axios from "axios"
 import { ChangeEvent, useState } from "react";
 import { Bookings } from "../../models/Bookings";
+import { INewBooking } from "../../models/INewBooking";
+import { INewCustomer } from "../../models/INewCustomer";
 import { GetBookingsService } from "../../Services/GetBookingsService/GetBookingsService";
-
-interface INewBooking {
-    restaurantId: string, 
-    date: string, 
-    time: string, 
-    numberOfGuests: number, 
-    customer: INewCustomer
-}
-
-interface INewCustomer {
-    name: string, 
-    lastname: string, 
-    email: string, 
-    phone: string
-}
 
 export function Booking(){
     const [ newBooking, setNewBooking ] = useState<INewBooking>({
@@ -56,13 +43,7 @@ export function Booking(){
     //Lägger in värdena på newCustomer till newBooking
     function customerToBooking(){
         setNewBooking({...newBooking, customer: newCustomer});
-    }
-
-    //FLYTTA TILL reserve() NÄR KLAR
-    //testar för att se att värdena blir rätt
-    function testar(){
-        customerToBooking();
-        console.log("NEW", newBooking);
+        reserve();
     }
 
     //Knapparna för vilken tid man vill äta, sparar värdet 18:00 eller 21:00 beroende på vilken man valde och lägger in i newBooking under time
@@ -121,10 +102,12 @@ export function Booking(){
                     } else {
                         console.log("DET FINNS INTE BORD KL 18");
                         setEatEarly(false);
+                        return;
                     }
                 } 
-            } else {
+            } else if(bookings[i].time === "18:00") {
                 setEatEarly(true);
+                console.log("FINNS 18");
             }
         }
     }
@@ -142,10 +125,12 @@ export function Booking(){
                     } else {
                         console.log("DET FINNS INTE BORD KL 21");
                         setEatLate(false);
+                        return;
                     }
                 } 
-            } else {
+            } else if(bookings[i].time === "21:00") {
                 setEatLate(true);
+                console.log("FINNS 21");
             }
         }
     }
@@ -153,11 +138,23 @@ export function Booking(){
     //Funktion för att boka ett bord
     function reserve(){
         //setNewBooking({...newBooking, customer: newCustomer});
+        console.log(newBooking);
 
         //Skickar newBooking till API och en bokning lagras i DB
         axios.post('https://school-restaurant-api.azurewebsites.net/booking/create', newBooking)
             .then(response => {
                 console.log(response.data);
+            })
+            .catch(error => {console.log(error);})
+    }
+
+    function createCustomer(){
+        axios.post('https://school-restaurant-api.azurewebsites.net/customer/create', newCustomer)
+            .then(response => {
+                console.log(response.data);
+                console.log(newCustomer);
+                customerToBooking();
+                
             })
             .catch(error => {console.log(error);})
     }
@@ -188,7 +185,7 @@ export function Booking(){
         <div>
             {eatEarly && !btnClicked && <button name="time" value="18:00" onClick={handleClick}>18:00</button>}
             {eatLate && !btnClicked && <button name="time" value="21:00" onClick={handleClick}>21:00</button>}
-            {eatEarly && eatLate && !btnClicked &&<button onClick={() => {window.location.reload()}}>AVBRYT</button>}
+            {(eatEarly || eatLate) && !btnClicked && <button onClick={() => {window.location.reload()}}>AVBRYT</button>}
         </div>
 
         {<p>Tyvärr fullbokat prova ett annat datum..</p>}
@@ -204,9 +201,8 @@ export function Booking(){
                 <label htmlFor="phone">Telefonnummer: </label>
                 <input type="text" name="phone" value={newCustomer.phone} onChange={handleCustomer}/><br />
             </form>
-            <button onClick={reserve}>BOKA</button>
+            <button onClick={createCustomer}>BOKA</button>
             <button onClick={() => {window.location.reload()}}>AVBRYT</button>
-            <button onClick={testar}>Testar</button>
         </div>}
     </>)
 }
