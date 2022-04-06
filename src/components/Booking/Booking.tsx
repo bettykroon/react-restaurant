@@ -1,5 +1,5 @@
 import axios from "axios"
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { Bookings } from "../../models/Bookings";
 import { INewBooking } from "../../models/INewBooking";
 import { INewCustomer } from "../../models/INewCustomer";
@@ -30,6 +30,31 @@ export function Booking(){
 
     const [ bookings, setBookings ] = useState<Bookings[]>([]);
 
+    useEffect(() => {
+        //Hämtar restaurangens samtliga bokningar
+        let service = new GetBookingsService();
+        service.getBookings().then((bookings) => {
+            let dataFromApi = bookings.map((booking: Bookings) => {
+                return new Bookings(booking._id, booking.restaurantId, booking.date, booking.time, booking.numberOfGuests, booking.customerId);
+            });
+            setBookings(dataFromApi);
+        })
+
+        //Om vi inte vill använda async await
+        /*axios.get<Bookings[]>('https://school-restaurant-api.azurewebsites.net/booking/restaurant/624aaeffdf8a9fb11c3ea8b5')
+            .then(response => {
+                console.log(response.data);
+                let dataFromApi = response.data.map((booking: Bookings) => {
+                    return new Bookings(booking._id, booking.restaurantId, booking.date, booking.time, booking.numberOfGuests, booking.customerId);
+                });
+                setBookings(dataFromApi);
+
+                dinnerEarly();
+                dinnerLate();
+            })
+            .catch(error => {console.log(error);});*/
+    }, [])
+
     //Hämtar värdet på input fälten i första formuläret och lägger in i newBooking
     function handleChange(e: ChangeEvent<HTMLInputElement>){
         let name: string = e.target.name;
@@ -54,33 +79,15 @@ export function Booking(){
         let name: string = e.target.name;
         setNewBooking({...newBooking, [name]: e.target.value});
         setBtnClicked(true);
+        setSearchBtnClicked(false);
     }    
 
     //Funktion för att hitta lediga tider på valt datum
+    const [ searchBtnClicked, setSearchBtnClicked ] = useState(false);
     function search(){
-        //Hämtar restaurangens samtliga bokningar
-        let service = new GetBookingsService();
-        service.getBookings().then((bookings) => {
-            let dataFromApi = bookings.map((booking: Bookings) => {
-                return new Bookings(booking._id, booking.restaurantId, booking.date, booking.time, booking.numberOfGuests, booking.customerId);
-            });
-            setBookings(dataFromApi);
-            //console.log("hej", bookings);
-            dinnerEarly();
-            dinnerLate();
-        })
-        /*axios.get<Bookings[]>('https://school-restaurant-api.azurewebsites.net/booking/restaurant/624aaeffdf8a9fb11c3ea8b5')
-            .then(response => {
-                console.log(response.data);
-                let dataFromApi = response.data.map((booking: Bookings) => {
-                    return new Bookings(booking._id, booking.restaurantId, booking.date, booking.time, booking.numberOfGuests, booking.customerId);
-                });
-                setBookings(dataFromApi);
-
-                dinnerEarly();
-                dinnerLate();
-            })
-            .catch(error => {console.log(error);});*/
+        dinnerEarly();
+        dinnerLate();
+        setSearchBtnClicked(true);
     }
 
     let earlyDinner: Bookings[] = [];
@@ -194,13 +201,13 @@ export function Booking(){
             </div>
         </div>}
 
-        <div className="form">
+        {searchBtnClicked && <div className="form">
             {eatEarly && !btnClicked && <Button name="time" value="18:00" onClick={handleClick}>18:00</Button>}
             {eatLate && !btnClicked && <Button name="time" value="21:00" onClick={handleClick}>21:00</Button>}
             {(eatEarly || eatLate) && !btnClicked && <CancelButton onClick={() => {window.location.reload()}}>AVBRYT</CancelButton>}
-        </div>
+        </div>}
 
-        {<p>Tyvärr fullbokat prova ett annat datum..</p>}
+        {searchBtnClicked && (!eatEarly && !eatLate) && <p className="sorry">Tyvärr fullbokat prova ett annat datum..</p>}
 
         {btnClicked && <div className="form">
             <form>
