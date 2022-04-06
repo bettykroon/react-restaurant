@@ -2,6 +2,8 @@ import axios from "axios"
 import { useEffect, useState } from "react"
 import { Bookings } from "../../models/Bookings"
 import { GetBookingsService } from "../../Services/GetBookingsService/GetBookingsService";
+import { Button, CancelButton } from "../Styled/Button";
+import "./Admin.scss";
 
 export function Admin(){
     const [ bookings, setBookings ] = useState<Bookings[]>([]);    
@@ -54,14 +56,16 @@ export function Admin(){
             <p>Datum: {booking.date}</p>
             <p>Tid: {booking.time}</p>
             <p>Antal gäster: {booking.numberOfGuests}</p>
-            <button onClick={() => changeBooking(booking._id)}>Ändra bokning</button>
-            <button onClick={() => deleteBooking(booking._id)}>Avboka</button>
+            <Button onClick={() => changeBooking(booking._id)}>Ändra bokning</Button>
+            <CancelButton onClick={() => deleteBooking(booking._id)}>Avboka</CancelButton>
         </li>)
     });
     
     return (<>
-        <h1>Bokningar</h1>
-        <ul>{lis}</ul>
+        <div className="bookings">
+            <h1>Bokningar</h1>
+            <ul>{lis}</ul>
+        </div>
     </>)
 }
 

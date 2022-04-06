@@ -2,39 +2,41 @@
     width: 100%;
     height: auto;
     padding: 20px;
-    background-color: pink;
+    background-color: #416351;
     
     .logoLink {
-        color: black;
+        color: #efe7d8;
         font-size: 50px;
         display: block;
-        position: relative;
+        position: absolute;
+        top: 0;
 
         &:hover {
-            color: cadetblue;
+            color: #fac25c;
         }
     }
 
     nav {
         display: block;
-        text-align: center;
+        text-align: right;
+        margin-right: 20px;
 
         a {
-            font-size: 2rem;
+            font-size: 1.5rem;
             text-decoration: none;
             margin-right: 20px;
 
             &:hover {
-                color: cadetblue;
+                color: #fac25c;
             }
         }
 
         .link {
-            color: black;
+            color: #efe7d8;
         }
 
         .link-active {
-            color: cadetblue;
+            color: #fac25c;
         }
     }
 }

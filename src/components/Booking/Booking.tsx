@@ -4,6 +4,8 @@ import { Bookings } from "../../models/Bookings";
 import { INewBooking } from "../../models/INewBooking";
 import { INewCustomer } from "../../models/INewCustomer";
 import { GetBookingsService } from "../../Services/GetBookingsService/GetBookingsService";
+import { Button, CancelButton } from "../Styled/Button";
+import "./Booking.scss";
 
 export function Booking(){
     const [ newBooking, setNewBooking ] = useState<INewBooking>({
@@ -154,43 +156,53 @@ export function Booking(){
                 console.log(response.data);
                 console.log(newCustomer);
                 customerToBooking();
-                
             })
             .catch(error => {console.log(error);})
     }
 
     return (<>
-        {!eatEarly && !eatLate && <div>
+        {!eatEarly && !eatLate && <div className="form">
             <form>
-                <label htmlFor="numberOfGuests">Antal gäster: </label><br />
+                <h3>Antal gäster:</h3>
                 <label htmlFor="numberOfGuests">1: </label>
-                <input type="radio" name="numberOfGuests" value={1} onChange={handleChange} required/><br />
+                <input type="radio" name="numberOfGuests" value={1} onChange={handleChange} required/>
                 <label htmlFor="numberOfGuests">2: </label>
-                <input type="radio" name="numberOfGuests" value={2} onChange={handleChange} /><br />
+                <input type="radio" name="numberOfGuests" value={2} onChange={handleChange} />
                 <label htmlFor="numberOfGuests">3: </label>
-                <input type="radio" name="numberOfGuests" value={3} onChange={handleChange} /><br />
+                <input type="radio" name="numberOfGuests" value={3} onChange={handleChange} />
                 <label htmlFor="numberOfGuests">4: </label>
-                <input type="radio" name="numberOfGuests" value={4} onChange={handleChange} /><br />
+                <input type="radio" name="numberOfGuests" value={4} onChange={handleChange} />
                 <label htmlFor="numberOfGuests">5: </label>
-                <input type="radio" name="numberOfGuests" value={5} onChange={handleChange} /><br />
+                <input type="radio" name="numberOfGuests" value={5} onChange={handleChange} />
                 <label htmlFor="numberOfGuests">6: </label>
-                <input type="radio" name="numberOfGuests" value={6} onChange={handleChange} /><br />
+                <input type="radio" name="numberOfGuests" value={6} onChange={handleChange} />
 
-                <label htmlFor="date">Datum: </label>
+                {/*<select name="numberOfGuests">
+                    <option value={1}>1</option>
+                    <option value={2}>2</option>
+                    <option value={3}>3</option>
+                    <option value={4}>4</option>
+                    <option value={5}>5</option>
+                    <option value={6}>6</option>
+                </select>*/}
+
+                <h3>Datum:</h3>
                 <input type="date" name="date" value={newBooking.date} onChange={handleChange} required/><br />
             </form>
-            <button onClick={search}>Sök</button>
+            <div className="searchBtn">
+                <Button onClick={search}>Sök</Button>
+            </div>
         </div>}
 
-        <div>
-            {eatEarly && !btnClicked && <button name="time" value="18:00" onClick={handleClick}>18:00</button>}
-            {eatLate && !btnClicked && <button name="time" value="21:00" onClick={handleClick}>21:00</button>}
-            {(eatEarly || eatLate) && !btnClicked && <button onClick={() => {window.location.reload()}}>AVBRYT</button>}
+        <div className="form">
+            {eatEarly && !btnClicked && <Button name="time" value="18:00" onClick={handleClick}>18:00</Button>}
+            {eatLate && !btnClicked && <Button name="time" value="21:00" onClick={handleClick}>21:00</Button>}
+            {(eatEarly || eatLate) && !btnClicked && <CancelButton onClick={() => {window.location.reload()}}>AVBRYT</CancelButton>}
         </div>
 
         {<p>Tyvärr fullbokat prova ett annat datum..</p>}
 
-        {btnClicked && <div>
+        {btnClicked && <div className="form">
             <form>
                 <label htmlFor="name">Förnamn: </label>
                 <input type="text" name="name" value={newCustomer.name} onChange={handleCustomer}/><br />
@@ -201,8 +213,8 @@ export function Booking(){
                 <label htmlFor="phone">Telefonnummer: </label>
                 <input type="text" name="phone" value={newCustomer.phone} onChange={handleCustomer}/><br />
             </form>
-            <button onClick={createCustomer}>BOKA</button>
-            <button onClick={() => {window.location.reload()}}>AVBRYT</button>
+            <Button onClick={createCustomer}>BOKA</Button>
+            <CancelButton onClick={() => {window.location.reload()}}>AVBRYT</CancelButton>
         </div>}
     </>)
 }
