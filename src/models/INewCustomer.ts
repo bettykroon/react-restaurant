@@ -2,5 +2,6 @@ export interface INewCustomer {
     name: string, 
     lastname: string, 
     email: string, 
-    phone: string
+    phone: string,
+    id: string
 }

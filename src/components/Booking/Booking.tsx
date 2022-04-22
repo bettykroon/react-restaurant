@@ -1,5 +1,6 @@
 import axios from "axios"
 import { ChangeEvent, useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { Bookings } from "../../models/Bookings";
 import { INewBooking } from "../../models/INewBooking";
 import { INewCustomer } from "../../models/INewCustomer";
@@ -8,6 +9,12 @@ import { Button, CancelButton } from "../Styled/Button";
 import "./Booking.scss";
 
 export function Booking(){
+    const {register, formState: {errors}} = useForm({
+        defaultValues: {
+            name: ""
+        }
+    });
+
     const [ newBooking, setNewBooking ] = useState<INewBooking>({
         restaurantId: '624aaeffdf8a9fb11c3ea8b5', 
         date: '', 
@@ -17,7 +24,8 @@ export function Booking(){
             name: '',
             lastname: '',
             email: '',
-            phone: ''
+            phone: '',
+            id: ''
         }
     });
 
@@ -25,10 +33,13 @@ export function Booking(){
         name: '',
         lastname: '',
         email: '',
-        phone: ''
+        phone: '',
+        id: ''
     });
 
     const [ bookings, setBookings ] = useState<Bookings[]>([]);
+
+    const [ gdpr, setGdpr ] = useState(false); 
 
     useEffect(() => {
         //Hämtar restaurangens samtliga bokningar
@@ -85,9 +96,17 @@ export function Booking(){
     //Funktion för att hitta lediga tider på valt datum
     const [ searchBtnClicked, setSearchBtnClicked ] = useState(false);
     function search(){
-        dinnerEarly();
-        dinnerLate();
+        if(bookings.length !== 0){
+            console.log("if");
+            dinnerEarly();
+            dinnerLate();
+        } else {
+            console.log("else");
+            setEatEarly(true);
+            setEatLate(true);
+        }
         setSearchBtnClicked(true);
+        console.log("DATUM", newBooking.date.length);
     }
 
     let earlyDinner: Bookings[] = [];
@@ -95,9 +114,10 @@ export function Booking(){
 
     //Funktion för att se om det finns lediga tider kl 18:00
     const [ eatEarly, setEatEarly ] = useState(false);
-    function dinnerEarly(){
+    function dinnerEarly(){  
         //Går igenom alla bokningar för restaurangen
         for (let i = 0; i < bookings.length; i++) {
+            console.log("1", i);
             //Kollar om användarens datum matchar med någon/några av restaurangens bokningar
             if(newBooking.date === bookings[i].date){
                 //Kollar hur många av dessa datum som har tiden 18:00
@@ -105,7 +125,7 @@ export function Booking(){
                     //Lägger in dessa bokningar i en ny array
                     earlyDinner.push(bookings[i]);
                     //Om arrayen är mindre än 15 betyder det att det finns minst 1 bord ledigt den tiden
-                    if(earlyDinner.length < 15) {
+                    if(earlyDinner.length < 3) {
                         console.log("DET FINNS BORD KL 18");
                         setEatEarly(true);
                     } else {
@@ -113,10 +133,15 @@ export function Booking(){
                         setEatEarly(false);
                         return;
                     }
-                } 
+                } else {
+                    setEatEarly(true);
+                }
             } else if(bookings[i].time === "18:00") {
                 setEatEarly(true);
                 console.log("FINNS 18");
+            } else {
+                setEatEarly(true);
+                console.log("WHAT");
             }
         }
     }
@@ -128,36 +153,53 @@ export function Booking(){
             if(newBooking.date === bookings[i].date){
                 if(bookings[i].time === "21:00"){
                     lateDinner.push(bookings[i]);
-                    if(lateDinner.length < 15) {
+                    if(lateDinner.length < 3) {
                         console.log("DET FINNS BORD KL 21");
                         setEatLate(true);
                     } else {
                         console.log("DET FINNS INTE BORD KL 21");
                         setEatLate(false);
-                        return;
                     }
+                } else {
+                    setEatLate(true);
                 } 
             } else if(bookings[i].time === "21:00") {
                 setEatLate(true);
                 console.log("FINNS 21");
+            } else {
+                console.log("hej booking", bookings[i].date);
+                setEatLate(true);
+                console.log("HALLÅ");
             }
         }
     }
 
     //Funktion för att boka ett bord
+    const [ reserveBtnClicked, setReserveBtnClicked ] = useState(false);
     function reserve(){
-        //setNewBooking({...newBooking, customer: newCustomer});
-        console.log(newBooking);
-
         //Skickar newBooking till API och en bokning lagras i DB
         axios.post('https://school-restaurant-api.azurewebsites.net/booking/create', newBooking)
             .then(response => {
                 console.log(response.data);
             })
             .catch(error => {console.log(error);})
+
+        setReserveBtnClicked(true);
     }
 
-    function createCustomer(){
+    function acceptGDPR(){
+        setGdpr(true); 
+
+        axios.post('https://school-restaurant-api.azurewebsites.net/customer/create', newCustomer)
+            .then(response => {
+                console.log(response.data);
+                setNewCustomer({...newCustomer , id: response.data})
+            })
+            .catch(error => {console.log(error);})
+            setNewBooking({...newBooking, customer: newCustomer});
+    }
+
+    /*function createCustomer(){
         axios.post('https://school-restaurant-api.azurewebsites.net/customer/create', newCustomer)
             .then(response => {
                 console.log(response.data);
@@ -165,14 +207,14 @@ export function Booking(){
                 customerToBooking();
             })
             .catch(error => {console.log(error);})
-    }
+    }*/
 
     return (<>
         {!eatEarly && !eatLate && <div className="form">
             <form>
                 <h3>Antal gäster:</h3>
                 <label htmlFor="numberOfGuests">1: </label>
-                <input type="radio" name="numberOfGuests" value={1} onChange={handleChange} required/>
+                <input type="radio" name="numberOfGuests" value={1} onChange={handleChange}/>
                 <label htmlFor="numberOfGuests">2: </label>
                 <input type="radio" name="numberOfGuests" value={2} onChange={handleChange} />
                 <label htmlFor="numberOfGuests">3: </label>
@@ -184,20 +226,14 @@ export function Booking(){
                 <label htmlFor="numberOfGuests">6: </label>
                 <input type="radio" name="numberOfGuests" value={6} onChange={handleChange} />
 
-                {/*<select name="numberOfGuests">
-                    <option value={1}>1</option>
-                    <option value={2}>2</option>
-                    <option value={3}>3</option>
-                    <option value={4}>4</option>
-                    <option value={5}>5</option>
-                    <option value={6}>6</option>
-                </select>*/}
+                {newBooking.numberOfGuests === 0 && <p>Du måste ange antal gäster..</p>}
 
                 <h3>Datum:</h3>
                 <input type="date" name="date" value={newBooking.date} onChange={handleChange} required/><br />
+                {newBooking.date.length === 0 && <p>Du måste välja ett datum..</p>}
             </form>
             <div className="searchBtn">
-                <Button onClick={search}>Sök</Button>
+                {newBooking.date.length > 0 && newBooking.numberOfGuests > 0 && <Button onClick={search}>Sök</Button>}
             </div>
         </div>}
 
@@ -209,19 +245,33 @@ export function Booking(){
 
         {searchBtnClicked && (!eatEarly && !eatLate) && <p className="sorry">Tyvärr fullbokat prova ett annat datum..</p>}
 
-        {btnClicked && <div className="form">
+        {btnClicked && !reserveBtnClicked && <div className="form">
             <form>
                 <label htmlFor="name">Förnamn: </label>
-                <input type="text" name="name" value={newCustomer.name} onChange={handleCustomer}/><br />
+                <input {...register("name", {required: "Måste ange förnamn"})} type="text" name="name" value={newCustomer.name} onChange={handleCustomer} required/><br />
+                {errors.name?.message}
+
+                {newCustomer.name.length === 0 && <p>Du måste ange förnamn</p>}
                 <label htmlFor="lname">Efternamn: </label>
-                <input type="text" name="lastname" value={newCustomer.lastname} onChange={handleCustomer}/><br />
+                <input type="text" name="lastname" value={newCustomer.lastname} onChange={handleCustomer} required/><br />
+                {newCustomer.lastname.length === 0 && <p>Du måste ange efternamn</p>}
                 <label htmlFor="email">E-post: </label>
-                <input type="text" name="email" value={newCustomer.email} onChange={handleCustomer}/><br />
+                <input type="text" name="email" value={newCustomer.email} onChange={handleCustomer} required/><br />
+                {newCustomer.email.length === 0 && <p>Du måste ange epost</p>}
                 <label htmlFor="phone">Telefonnummer: </label>
-                <input type="text" name="phone" value={newCustomer.phone} onChange={handleCustomer}/><br />
+                <input type="text" name="phone" value={newCustomer.phone} onChange={handleCustomer} required/><br />
+                {newCustomer.phone.length === 0 && <p>Du måste ange telefonnummer</p>}
             </form>
-            <Button onClick={createCustomer}>BOKA</Button>
+            {newCustomer.name.length > 0 && newCustomer.lastname.length > 0 && newCustomer.email.length > 0 && newCustomer.phone.length > 0 && !gdpr && <div> 
+                <p>GDPR bla bla bla</p>
+                <Button onClick={acceptGDPR}>Godkänn</Button>
+            </div>}
+            {<Button onClick={customerToBooking}>BOKA</Button>}
             <CancelButton onClick={() => {window.location.reload()}}>AVBRYT</CancelButton>
+        </div>}
+
+        {reserveBtnClicked && <div className="thanks">
+            <h3>Tack för din bokning!</h3>
         </div>}
     </>)
 }
