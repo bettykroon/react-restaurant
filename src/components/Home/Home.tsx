@@ -14,7 +14,7 @@ export function Home(){
             <H1>Brunch Blessed</H1>
             <Quote>~ only the best is good enough ~</Quote>
             <BookButton>
-                <Link to="/react-restaurant/bokning"><span>Boka bord</span></Link>
+                <Link to="/bokning"><span>Boka bord</span></Link>
                 <svg viewBox="0 0 13 10" height="10px" width="15px">
                     <path d="M1,5 L11,5"></path>
                     <polyline points="8 1 12 5 8 9"></polyline>
@@ -74,7 +74,7 @@ export function Home(){
             <h4>12:00 - 14:00</h4>
 
             <BookButton2>
-                <Link to="/react-restaurant/bokning"><span>Boka bord</span></Link>
+                <Link to="/bokning"><span>Boka bord</span></Link>
                 <svg viewBox="0 0 13 10" height="10px" width="15px">
                     <path d="M1,5 L11,5"></path>
                     <polyline points="8 1 12 5 8 9"></polyline>
