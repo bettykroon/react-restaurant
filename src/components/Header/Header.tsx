@@ -4,12 +4,12 @@ import {HeaderLink, Logotype, StyledHeader} from '../Styled/Nav';
 export function Header(){
     return(<StyledHeader>
         <Logotype>
-            <Link to="/">Brunch Blessed</Link>
+            <Link to="/react-restaurant/">Brunch Blessed</Link>
         </Logotype>
         <nav>
-            <HeaderLink to="/">Hem</HeaderLink>
-            <HeaderLink to="/bokning">Boka</HeaderLink>
-            <HeaderLink to="/kontakt">Kontakt</HeaderLink>
+            <HeaderLink to="/react-restaurant/">Hem</HeaderLink>
+            <HeaderLink to="/react-restaurant/bokning">Boka</HeaderLink>
+            <HeaderLink to="/react-restaurant/kontakt">Kontakt</HeaderLink>
         </nav>
     </StyledHeader>)
 }

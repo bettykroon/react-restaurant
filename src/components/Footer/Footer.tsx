@@ -14,7 +14,7 @@ export function Footer(){
                     <H3>~ Adress ~</H3>
                     <p>Storgatan 1</p>
                     <p>123 45, Stockholm</p>
-                    <AdminButton><Link to="/admin">Admin</Link></AdminButton>
+                    <AdminButton><Link to="/react-restaurant/admin">Admin</Link></AdminButton>
                 </div>
                 <div>
                     <H3>~ Kontakt ~</H3>

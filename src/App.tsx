@@ -14,11 +14,11 @@ function App() {
     <>
       {id === null && <CreateRestaurantService></CreateRestaurantService>}
       <Routes>
-        <Route path='/' element={<Layout/>}>
+        <Route path='/react-restaurant' element={<Layout/>}>
           <Route index element={<Home/>}/>
-          <Route path='/bokning' element={<Booking/>}/>
-          <Route path='/kontakt' element={<Contact/>}/>
-          <Route path='/admin' element={<Admin/>}/>
+          <Route path='/react-restaurant/bokning' element={<Booking/>}/>
+          <Route path='/react-restaurant/kontakt' element={<Contact/>}/>
+          <Route path='/react-restaurant/admin' element={<Admin/>}/>
         </Route>
       </Routes>
     </>

@@ -11,7 +11,7 @@ export function Contact(){
             <IMG src={homeImg}></IMG>
             <H1>Kontakta oss</H1>
             <BookButton>
-                <Link to="/bokning"><span>Boka bord</span></Link>
+                <Link to="/react-restaurant/bokning"><span>Boka bord</span></Link>
                 <svg viewBox="0 0 13 10" height="10px" width="15px">
                     <path d="M1,5 L11,5"></path>
                     <polyline points="8 1 12 5 8 9"></polyline>
@@ -29,7 +29,7 @@ export function Contact(){
             <p>Storgatan 1, 123 45 Stockholm</p>
 
             <BookButton3>
-                <Link to="/bokning"><span>Boka bord</span></Link>
+                <Link to="/react-restaurant/bokning"><span>Boka bord</span></Link>
                 <svg viewBox="0 0 13 10" height="10px" width="15px">
                     <path d="M1,5 L11,5"></path>
                     <polyline points="8 1 12 5 8 9"></polyline>
