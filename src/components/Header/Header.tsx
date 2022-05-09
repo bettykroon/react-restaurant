@@ -1,19 +1,17 @@
-import { faPizzaSlice } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Link, NavLink } from "react-router-dom"
-import "./Header.scss"
+import { Link } from "react-router-dom"
+import {HeaderLink, Logotype, StyledHeader} from '../Styled/Nav';
 
 export function Header(){
-    return(<div className="navbar">
-        <Link className="logoLink" to="/">
-            <FontAwesomeIcon icon={faPizzaSlice}></FontAwesomeIcon>
-        </Link>
+    return(<StyledHeader>
+        <Logotype>
+            <Link to="/">Brunch Blessed</Link>
+        </Logotype>
         <nav>
-            <NavLink to="/" className={({isActive}) => (isActive ? "link-active" : "link")}>Hem</NavLink>
-            <NavLink to="/bokning" className={({isActive}) => (isActive ? "link-active" : "link")}>Boka</NavLink>
-            <NavLink to="/kontakt" className={({isActive}) => (isActive ? "link-active" : "link")}>Kontakt</NavLink>
+            <HeaderLink to="/">Hem</HeaderLink>
+            <HeaderLink to="/bokning">Boka</HeaderLink>
+            <HeaderLink to="/kontakt">Kontakt</HeaderLink>
         </nav>
-    </div>)
+    </StyledHeader>)
 }
 
 export default Header

@@ -1,20 +1,18 @@
 import axios from "axios"
 import { ChangeEvent, useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
 import { Bookings } from "../../models/Bookings";
 import { INewBooking } from "../../models/INewBooking";
 import { INewCustomer } from "../../models/INewCustomer";
 import { GetBookingsService } from "../../Services/GetBookingsService/GetBookingsService";
 import { Button, CancelButton } from "../Styled/Button";
-import "./Booking.scss";
+import { H1 } from "../Styled/Headings";
+import { HeaderDiv, IMG } from "../Styled/Nav";
+import { SelectGuests } from "./SelectGuests";
+import homeImg from '../../images/header.jpeg';
+import { Section } from "../Styled/Section";
+import { Form, Input, Label, Select } from "../Styled/Form";
 
 export function Booking(){
-    const {register, formState: {errors}} = useForm({
-        defaultValues: {
-            name: ""
-        }
-    });
-
     const [ newBooking, setNewBooking ] = useState<INewBooking>({
         restaurantId: '624aaeffdf8a9fb11c3ea8b5', 
         date: '', 
@@ -38,7 +36,6 @@ export function Booking(){
     });
 
     const [ bookings, setBookings ] = useState<Bookings[]>([]);
-
     const [ gdpr, setGdpr ] = useState(false); 
 
     useEffect(() => {
@@ -50,24 +47,10 @@ export function Booking(){
             });
             setBookings(dataFromApi);
         })
-
-        //Om vi inte vill använda async await
-        /*axios.get<Bookings[]>('https://school-restaurant-api.azurewebsites.net/booking/restaurant/624aaeffdf8a9fb11c3ea8b5')
-            .then(response => {
-                console.log(response.data);
-                let dataFromApi = response.data.map((booking: Bookings) => {
-                    return new Bookings(booking._id, booking.restaurantId, booking.date, booking.time, booking.numberOfGuests, booking.customerId);
-                });
-                setBookings(dataFromApi);
-
-                dinnerEarly();
-                dinnerLate();
-            })
-            .catch(error => {console.log(error);});*/
-    }, [])
+    }, []);
 
     //Hämtar värdet på input fälten i första formuläret och lägger in i newBooking
-    function handleChange(e: ChangeEvent<HTMLInputElement>){
+    function handleChange(e: ChangeEvent<HTMLInputElement | HTMLSelectElement>){
         let name: string = e.target.name;
         setNewBooking({...newBooking, [name]: e.target.value});
     }
@@ -84,7 +67,7 @@ export function Booking(){
         reserve();
     }
 
-    //Knapparna för vilken tid man vill äta, sparar värdet 18:00 eller 21:00 beroende på vilken man valde och lägger in i newBooking under time
+    //Knapparna för vilken tid man vill äta, sparar värdet 12:00 eller 13:00 beroende på vilken man valde och lägger in i newBooking under time
     const [ btnClicked, setBtnClicked ] = useState(false);
     function handleClick(e: any){
         let name: string = e.target.name;
@@ -106,39 +89,41 @@ export function Booking(){
             setEatLate(true);
         }
         setSearchBtnClicked(true);
-        console.log("DATUM", newBooking.date.length);
     }
 
     let earlyDinner: Bookings[] = [];
     let lateDinner: Bookings[] = [];
+    let totalGuests = 0;
+    let chairsLeft = 0;
 
-    //Funktion för att se om det finns lediga tider kl 18:00
+    //Funktion för att se om det finns lediga tider kl 12:00
     const [ eatEarly, setEatEarly ] = useState(false);
     function dinnerEarly(){  
         //Går igenom alla bokningar för restaurangen
         for (let i = 0; i < bookings.length; i++) {
-            console.log("1", i);
             //Kollar om användarens datum matchar med någon/några av restaurangens bokningar
             if(newBooking.date === bookings[i].date){
-                //Kollar hur många av dessa datum som har tiden 18:00
-                if(bookings[i].time === "18:00"){
+                //Kollar hur många av dessa datum som har tiden 12:00
+                if(bookings[i].time === "12:00"){
                     //Lägger in dessa bokningar i en ny array
                     earlyDinner.push(bookings[i]);
+                    totalGuests += bookings[i].numberOfGuests;
+                    chairsLeft = 90 - totalGuests;
                     //Om arrayen är mindre än 15 betyder det att det finns minst 1 bord ledigt den tiden
-                    if(earlyDinner.length < 3) {
-                        console.log("DET FINNS BORD KL 18");
+                    if(earlyDinner.length < 3 && (newBooking.numberOfGuests <= chairsLeft)){
+                        console.log("DET FINNS BORD KL 12");
                         setEatEarly(true);
                     } else {
-                        console.log("DET FINNS INTE BORD KL 18");
+                        console.log("DET FINNS INTE BORD KL 12");
                         setEatEarly(false);
                         return;
                     }
                 } else {
                     setEatEarly(true);
                 }
-            } else if(bookings[i].time === "18:00") {
+            } else if(bookings[i].time === "12:00") {
                 setEatEarly(true);
-                console.log("FINNS 18");
+                console.log("FINNS 12");
             } else {
                 setEatEarly(true);
                 console.log("WHAT");
@@ -146,26 +131,29 @@ export function Booking(){
         }
     }
 
-    //Funktion för att kolla om det finns lediga tider kl 21:00, samma som dinnerEarly() fast 21:00
+    //Funktion för att kolla om det finns lediga tider kl 13:00, samma som dinnerEarly() fast 13:00
     const [ eatLate, setEatLate ] = useState(false);
     function dinnerLate(){
         for (let i = 0; i < bookings.length; i++) {
             if(newBooking.date === bookings[i].date){
-                if(bookings[i].time === "21:00"){
+                if(bookings[i].time === "13:00"){
                     lateDinner.push(bookings[i]);
-                    if(lateDinner.length < 3) {
-                        console.log("DET FINNS BORD KL 21");
+                    totalGuests += bookings[i].numberOfGuests;
+                    chairsLeft = 90 - totalGuests;
+                    if(lateDinner.length < 3 && (newBooking.numberOfGuests <= chairsLeft)){
+                        console.log("DET FINNS BORD KL 13");
                         setEatLate(true);
                     } else {
-                        console.log("DET FINNS INTE BORD KL 21");
+                        console.log("DET FINNS INTE BORD KL 13");
                         setEatLate(false);
+                        return;
                     }
                 } else {
                     setEatLate(true);
                 } 
-            } else if(bookings[i].time === "21:00") {
+            } else if(bookings[i].time === "13:00") {
                 setEatLate(true);
-                console.log("FINNS 21");
+                console.log("FINNS 13");
             } else {
                 console.log("hej booking", bookings[i].date);
                 setEatLate(true);
@@ -199,80 +187,95 @@ export function Booking(){
             setNewBooking({...newBooking, customer: newCustomer});
     }
 
-    /*function createCustomer(){
-        axios.post('https://school-restaurant-api.azurewebsites.net/customer/create', newCustomer)
-            .then(response => {
-                console.log(response.data);
-                console.log(newCustomer);
-                customerToBooking();
-            })
-            .catch(error => {console.log(error);})
-    }*/
-
+    const [ bigCompany, setBigCompany ] = useState(false);
+    function biggerCompany(){
+        setBigCompany(true);
+    }
+    
+    console.log("E", eatEarly);
+    console.log("L", eatLate);
+    
+    
     return (<>
-        {!eatEarly && !eatLate && <div className="form">
+        <HeaderDiv>
+            <IMG src={homeImg}></IMG>
+            <H1>Boka bord</H1>
+        </HeaderDiv>
+        
+        {!eatEarly && !eatLate && !bigCompany && <Section>
             <form>
                 <h3>Antal gäster:</h3>
-                <label htmlFor="numberOfGuests">1: </label>
-                <input type="radio" name="numberOfGuests" value={1} onChange={handleChange}/>
-                <label htmlFor="numberOfGuests">2: </label>
-                <input type="radio" name="numberOfGuests" value={2} onChange={handleChange} />
-                <label htmlFor="numberOfGuests">3: </label>
-                <input type="radio" name="numberOfGuests" value={3} onChange={handleChange} />
-                <label htmlFor="numberOfGuests">4: </label>
-                <input type="radio" name="numberOfGuests" value={4} onChange={handleChange} />
-                <label htmlFor="numberOfGuests">5: </label>
-                <input type="radio" name="numberOfGuests" value={5} onChange={handleChange} />
-                <label htmlFor="numberOfGuests">6: </label>
-                <input type="radio" name="numberOfGuests" value={6} onChange={handleChange} />
+                <Select name="numberOfGuests" onChange={handleChange}>
+                    <option value={0}>0</option>
+                    <option value={1}>1</option>
+                    <option value={2}>2</option>
+                    <option value={3}>3</option>
+                    <option value={4}>4</option>
+                    <option value={5}>5</option>
+                    <option value={6}>6</option>
+                </Select>
 
-                {newBooking.numberOfGuests === 0 && <p>Du måste ange antal gäster..</p>}
+                {/*newBooking.numberOfGuests === 0 && <p>Du måste ange antal gäster..</p>*/}
+
+                <p>Större sällskap?<Button onClick={biggerCompany}>Klicka här!</Button></p>
 
                 <h3>Datum:</h3>
-                <input type="date" name="date" value={newBooking.date} onChange={handleChange} required/><br />
-                {newBooking.date.length === 0 && <p>Du måste välja ett datum..</p>}
+                <Input type="date" name="date" value={newBooking.date} onChange={handleChange} required/><br />
+                {/*newBooking.date.length === 0 && <p>Du måste välja ett datum..</p>*/}
             </form>
             <div className="searchBtn">
                 {newBooking.date.length > 0 && newBooking.numberOfGuests > 0 && <Button onClick={search}>Sök</Button>}
             </div>
-        </div>}
+        </Section>}
 
-        {searchBtnClicked && <div className="form">
-            {eatEarly && !btnClicked && <Button name="time" value="18:00" onClick={handleClick}>18:00</Button>}
-            {eatLate && !btnClicked && <Button name="time" value="21:00" onClick={handleClick}>21:00</Button>}
-            {(eatEarly || eatLate) && !btnClicked && <CancelButton onClick={() => {window.location.reload()}}>AVBRYT</CancelButton>}
-        </div>}
-
-        {searchBtnClicked && (!eatEarly && !eatLate) && <p className="sorry">Tyvärr fullbokat prova ett annat datum..</p>}
-
-        {btnClicked && !reserveBtnClicked && <div className="form">
+        {bigCompany && !eatEarly && !eatLate && <Section>
             <form>
-                <label htmlFor="name">Förnamn: </label>
-                <input {...register("name", {required: "Måste ange förnamn"})} type="text" name="name" value={newCustomer.name} onChange={handleCustomer} required/><br />
-                {errors.name?.message}
+                <h3>Antal gäster:</h3>
+                <Select name="numberOfGuests" onChange={handleChange}><SelectGuests/></Select>   
 
-                {newCustomer.name.length === 0 && <p>Du måste ange förnamn</p>}
-                <label htmlFor="lname">Efternamn: </label>
-                <input type="text" name="lastname" value={newCustomer.lastname} onChange={handleCustomer} required/><br />
-                {newCustomer.lastname.length === 0 && <p>Du måste ange efternamn</p>}
-                <label htmlFor="email">E-post: </label>
-                <input type="text" name="email" value={newCustomer.email} onChange={handleCustomer} required/><br />
-                {newCustomer.email.length === 0 && <p>Du måste ange epost</p>}
-                <label htmlFor="phone">Telefonnummer: </label>
-                <input type="text" name="phone" value={newCustomer.phone} onChange={handleCustomer} required/><br />
-                {newCustomer.phone.length === 0 && <p>Du måste ange telefonnummer</p>}
-            </form>
+                <h3>Datum:</h3>
+                <Input type="date" name="date" value={newBooking.date} onChange={handleChange} required/><br />
+                {/*newBooking.date.length === 0 && <p>Du måste välja ett datum..</p>*/}
+            </form> 
+            <div className="searchBtn">
+                {newBooking.date.length > 0 && newBooking.numberOfGuests > 0 && <Button onClick={search}>Sök</Button>}
+            </div>
+        </Section>}
+
+        {searchBtnClicked && (eatEarly || eatLate) && <Section>
+            {eatEarly && !btnClicked && <Button name="time" value="12:00" onClick={handleClick}>12:00</Button>}
+            {eatLate && !btnClicked && <Button name="time" value="13:00" onClick={handleClick}>13:00</Button>}
+            {(eatEarly || eatLate) && !btnClicked && <CancelButton onClick={() => {window.location.reload()}}>AVBRYT</CancelButton>}
+        </Section>}
+
+        {searchBtnClicked && (!eatEarly && !eatLate) && <Section>Tyvärr fullbokat prova ett annat datum..!</Section>}
+
+        {btnClicked && !reserveBtnClicked && <Section>
+            <Form>
+                <Label htmlFor="name">*Förnamn: </Label> <br />
+                <Input type="text" name="name" value={newCustomer.name} onChange={handleCustomer} required/><br />
+                {/*newCustomer.name.length === 0 && <p>Du måste ange förnamn</p>*/}
+                <Label htmlFor="lname">*Efternamn: </Label> <br />
+                <Input type="text" name="lastname" value={newCustomer.lastname} onChange={handleCustomer} required/><br />
+                {/*newCustomer.lastname.length === 0 && <p>Du måste ange efternamn</p>*/}
+                <Label htmlFor="email">*E-post: </Label> <br />
+                <Input type="text" name="email" value={newCustomer.email} onChange={handleCustomer} required/><br />
+                {/*newCustomer.email.length === 0 && <p>Du måste ange epost</p>*/}
+                <Label htmlFor="phone">*Telefonnummer: </Label> <br />
+                <Input type="text" name="phone" value={newCustomer.phone} onChange={handleCustomer} required/><br />
+                {/*newCustomer.phone.length === 0 && <p>Du måste ange telefonnummer</p>*/}
+            </Form>
             {newCustomer.name.length > 0 && newCustomer.lastname.length > 0 && newCustomer.email.length > 0 && newCustomer.phone.length > 0 && !gdpr && <div> 
                 <p>GDPR bla bla bla</p>
                 <Button onClick={acceptGDPR}>Godkänn</Button>
             </div>}
-            {<Button onClick={customerToBooking}>BOKA</Button>}
+            {<Button disabled={!gdpr} onClick={customerToBooking}>BOKA</Button>}
             <CancelButton onClick={() => {window.location.reload()}}>AVBRYT</CancelButton>
-        </div>}
+        </Section>}
 
-        {reserveBtnClicked && <div className="thanks">
+        {reserveBtnClicked && <Section>
             <h3>Tack för din bokning!</h3>
-        </div>}
+        </Section>}
     </>)
 }
 
