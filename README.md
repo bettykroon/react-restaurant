@@ -1,3 +1,5 @@
+Se projektet live här: https://clever-pie-f2ae64.netlify.app/
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
